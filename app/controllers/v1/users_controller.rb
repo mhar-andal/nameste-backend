@@ -13,7 +13,7 @@ class V1::UsersController < ApplicationController
       session[:user_id] = user.id
       render json: user.to_json(except: [:password_digest])
     else
-      render json: {errors: user.errors}, status: :unauthorized
+      render json: {errors: user.errors.full_messages}, status: :unauthorized
     end
   end
 end
