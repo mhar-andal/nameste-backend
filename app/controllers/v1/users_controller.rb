@@ -1,5 +1,5 @@
 class V1::UsersController < ApplicationController
-
+  skip_before_action :authenticate_request, :only => [:create]
   def create
     user = User.new(
       first_name: params[:first_name],
@@ -10,10 +10,13 @@ class V1::UsersController < ApplicationController
       password_confirmation: params[:password_confirmation]
     )
     if user.save
-      session[:user_id] = user.id
-      render json: user.to_json(except: [:password_digest])
+      render json: { user_token: JsonWebToken.encode(user_id: user.id) } 
     else
-      render json: {errors: user.errors.full_messages}, status: :unauthorized
+      render json: { errors: user.errors.full_messages }, status: :unauthorized
     end
+  end
+
+  def show
+    render json: current_user
   end
 end

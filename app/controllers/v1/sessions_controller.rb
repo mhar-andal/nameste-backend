@@ -1,12 +1,12 @@
 class V1::SessionsController < ApplicationController
+  skip_before_action :authenticate_request
 
   def create
-    user = User.where(email: params[:email]).or(User.where(username: params[:username])).first
-    if user && user.authenticate(params[:password])
-      session[:user_id] = user.id
-      render json: user
+    token = AuthenticateUser.call(email: params[:email], password: params[:password], username: params[:username])
+    if token
+      render json: { auth_token: token }
     else
-      render json: {}, status: :unauthorized
+      render json: { error: 'unauthorized' }, status: :unauthorized
     end
   end
 
